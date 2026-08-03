@@ -69,6 +69,13 @@ Escaneie o QR code com o app **Expo Go**, ou rode num emulador Android/iOS.
 > eas build --platform android --profile development
 > ```
 
+## CI/CD
+
+O repositório está conectado ao [EAS Workflows](https://docs.expo.dev/eas-workflows/get-started/) (`.eas/workflows/`):
+
+- **`quality-checks.yml`** — roda `tsc --noEmit` a cada push e pull request, em qualquer branch.
+- **`build-development.yml`** — gera automaticamente um build Android do development client a cada push na `master`.
+
 ## Estrutura do projeto
 
 ```
