@@ -157,7 +157,12 @@ export function ProfileScreen({ navigation }: Props) {
         </Pressable>
       </ScrollView>
 
-      <TabBar active="profile" onNavigateCalendar={() => navigation.navigate('Calendar')} onNavigateProfile={() => {}} />
+      <TabBar
+        active="profile"
+        onNavigateCalendar={() => navigation.navigate('Calendar')}
+        onNavigateHistory={() => navigation.navigate('History')}
+        onNavigateProfile={() => {}}
+      />
     </GradientScreen>
   );
 }

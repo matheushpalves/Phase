@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 const DATABASE_NAME = 'phase.db';
-const DATABASE_VERSION = 4;
+const DATABASE_VERSION = 5;
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
@@ -56,6 +56,26 @@ async function migrate(db: SQLite.SQLiteDatabase) {
       account_id INTEGER,
       FOREIGN KEY (account_id) REFERENCES account (id)
     );
+
+    CREATE TABLE IF NOT EXISTS cycle_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id INTEGER NOT NULL,
+      start_date TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (account_id) REFERENCES account (id)
+    );
+
+    CREATE TABLE IF NOT EXISTS mood_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      mood TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (account_id) REFERENCES account (id)
+    );
+
+    CREATE UNIQUE INDEX IF NOT EXISTS mood_log_account_date ON mood_log (account_id, date);
   `);
 
   await addColumnIfMissing(db, 'account', 'name', `TEXT NOT NULL DEFAULT ''`);

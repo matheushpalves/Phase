@@ -29,7 +29,7 @@ export function addDays(date: Date, days: number): Date {
   return result;
 }
 
-function diffInDays(a: Date, b: Date): number {
+export function diffInDays(a: Date, b: Date): number {
   const utcA = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
   const utcB = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
   return Math.round((utcA - utcB) / MS_PER_DAY);

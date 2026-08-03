@@ -6,13 +6,15 @@ import { fonts } from '../theme/typography';
 import { spacing } from '../theme/layout';
 
 type TabBarProps = {
-  active: 'calendar' | 'profile';
+  active: 'calendar' | 'history' | 'profile';
   onNavigateCalendar: () => void;
+  onNavigateHistory: () => void;
   onNavigateProfile: () => void;
 };
 
-export function TabBar({ active, onNavigateCalendar, onNavigateProfile }: TabBarProps) {
+export function TabBar({ active, onNavigateCalendar, onNavigateHistory, onNavigateProfile }: TabBarProps) {
   const isCalendar = active === 'calendar';
+  const isHistory = active === 'history';
   const isProfile = active === 'profile';
 
   return (
@@ -24,6 +26,14 @@ export function TabBar({ active, onNavigateCalendar, onNavigateProfile }: TabBar
           color={isCalendar ? colors.primaryLight : colors.textMuted}
         />
         <Text style={isCalendar ? styles.tabLabelActive : styles.tabLabel}>Calendário</Text>
+      </Pressable>
+      <Pressable style={styles.tabItem} onPress={onNavigateHistory}>
+        <Ionicons
+          name={isHistory ? 'time' : 'time-outline'}
+          size={22}
+          color={isHistory ? colors.primaryLight : colors.textMuted}
+        />
+        <Text style={isHistory ? styles.tabLabelActive : styles.tabLabel}>Histórico</Text>
       </Pressable>
       <Pressable style={styles.tabItem} onPress={onNavigateProfile}>
         <Ionicons

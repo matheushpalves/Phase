@@ -18,6 +18,7 @@ import {
   updatePartnerBirthday as updatePartnerBirthdayDb,
   updateRelationshipDetails as updateRelationshipDetailsDb,
 } from '../db/cycleProfile';
+import { addCycleLogEntry } from '../db/cycleLog';
 import { syncScheduledNotifications } from '../utils/notifications';
 
 type AppState = {
@@ -34,6 +35,7 @@ type AppState = {
   updateUserBirthday: (date: string | null) => Promise<void>;
   updatePartnerBirthday: (date: string | null) => Promise<void>;
   updateRelationshipDetails: (data: { startDate: string | null; status: RelationshipStatus | null }) => Promise<void>;
+  logNewCycleStart: (startDate: string) => Promise<void>;
 };
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -95,8 +97,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (!account) return;
     const currentName = cycleProfile?.partner_name ?? '';
     await saveCycleProfileDb(account.id, { partnerName: currentName, ...data });
+    await addCycleLogEntry(account.id, data.lastPeriodStart);
     await refreshProfile(account.id);
   }, [account, cycleProfile, refreshProfile]);
+
+  const logNewCycleStart = useCallback(async (startDate: string) => {
+    if (!account) return;
+    await addCycleLogEntry(account.id, startDate);
+    await refreshProfile(account.id);
+  }, [account, refreshProfile]);
 
   const updateUserAvatar = useCallback(async (uri: string | null) => {
     if (!account) return;
@@ -142,6 +151,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     updateUserBirthday,
     updatePartnerBirthday,
     updateRelationshipDetails,
+    logNewCycleStart,
   }), [
     isLoading,
     account,
@@ -156,6 +166,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     updateUserBirthday,
     updatePartnerBirthday,
     updateRelationshipDetails,
+    logNewCycleStart,
   ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

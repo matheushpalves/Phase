@@ -13,6 +13,7 @@ export type MainStackParamList = {
   Calendar: undefined;
   DayDetail: { date: string };
   Profile: undefined;
+  History: undefined;
 };
 
 export type RootStackParamList = AuthStackParamList & OnboardingStackParamList & MainStackParamList;

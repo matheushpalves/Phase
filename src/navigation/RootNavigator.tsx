@@ -11,6 +11,7 @@ import { OnboardingDataScreen } from '../screens/OnboardingDataScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { DayDetailScreen } from '../screens/DayDetailScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { HistoryScreen } from '../screens/HistoryScreen';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -46,6 +47,7 @@ export function RootNavigator() {
           <Stack.Screen name="Calendar" component={CalendarScreen} />
           <Stack.Screen name="DayDetail" component={DayDetailScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="History" component={HistoryScreen} />
         </>
       )}
     </Stack.Navigator>

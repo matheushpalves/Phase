@@ -1,21 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { GradientScreen } from '../components/GradientScreen';
+import { MoodPicker } from '../components/MoodPicker';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/typography';
 import { radius, spacing } from '../theme/layout';
 import { useApp } from '../context/AppContext';
 import { formatLongDatePt, getDayInfo, MONTH_NAMES_PT, parseISODate } from '../utils/cycleCalculations';
 import { phaseContent, pmsHint } from '../utils/phaseContent';
+import { getMoodForDate, setMoodForDate } from '../db/moodLog';
+import type { MoodValue } from '../db/moodLog';
 import type { MainStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'DayDetail'>;
 
 export function DayDetailScreen({ route, navigation }: Props) {
-  const { cycleProfile } = useApp();
+  const { account, cycleProfile } = useApp();
+  const [mood, setMood] = useState<MoodValue | null>(null);
+
+  const isoDate = route.params.date;
+  const accountId = account?.id;
+
+  useEffect(() => {
+    if (!accountId) return;
+    let cancelled = false;
+    getMoodForDate(accountId, isoDate).then((entry) => {
+      if (!cancelled) setMood(entry?.mood ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [accountId, isoDate]);
+
   if (!cycleProfile) return null;
+
+  async function handleSelectMood(selected: MoodValue) {
+    setMood(selected);
+    if (accountId) {
+      await setMoodForDate(accountId, isoDate, selected);
+    }
+  }
 
   const date = parseISODate(route.params.date);
   const info = getDayInfo(date, cycleProfile);
@@ -54,6 +80,11 @@ export function DayDetailScreen({ route, navigation }: Props) {
         <View style={styles.tipCard}>
           <Text style={styles.tipLabel}>Dica do Phase</Text>
           <Text style={styles.tipText}>{content.tipDescription}</Text>
+        </View>
+
+        <View style={styles.moodCard}>
+          <Text style={styles.moodLabel}>Como ela estava nesse dia?</Text>
+          <MoodPicker value={mood} onChange={handleSelectMood} />
         </View>
       </ScrollView>
 
@@ -125,6 +156,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  moodCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+  },
+  moodLabel: {
+    fontFamily: fonts.bodyBold,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    color: colors.primaryLight,
+    marginBottom: spacing.sm,
   },
   tipLabel: {
     fontFamily: fonts.bodyBold,

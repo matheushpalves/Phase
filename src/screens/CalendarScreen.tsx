@@ -96,6 +96,7 @@ export function CalendarScreen({ navigation }: Props) {
       <TabBar
         active="calendar"
         onNavigateCalendar={() => {}}
+        onNavigateHistory={() => navigation.navigate('History')}
         onNavigateProfile={() => navigation.navigate('Profile')}
       />
     </GradientScreen>
