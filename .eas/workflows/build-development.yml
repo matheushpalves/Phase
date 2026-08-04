@@ -1,8 +1,9 @@
 name: Build development client (Android)
 
-on:
-  push:
-    branches: ['master']
+# Runs manually only (`eas workflow:run .eas/workflows/build-development.yml`),
+# not on every push — a new native build is only needed when native deps or
+# app.json/eas.json config change, not for regular JS/TS edits (those reach
+# the installed dev client via Metro's normal reload).
 
 jobs:
   build_android:
