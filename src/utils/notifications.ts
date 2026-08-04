@@ -3,10 +3,15 @@ import { LogBox, Platform } from 'react-native';
 import { Account } from '../db/auth';
 import { CycleProfile } from '../db/cycleProfile';
 import { addDays, getDayInfo, parseISODate } from './cycleCalculations';
+import { phaseContent, pmsHint } from './phaseContent';
 import { RELATIONSHIP_LABELS } from './relationship';
 
 const NOTIFICATION_HOUR = 9;
+const DAILY_TIP_HOUR_NOON = 12;
+const DAILY_TIP_HOUR_EVENING = 18;
 const SCHEDULING_HORIZON_DAYS = 60;
+/** Two tips a day adds up fast against iOS's 64-pending-notification cap, so this window is much shorter than the event horizon above. */
+const DAILY_TIP_HORIZON_DAYS = 20;
 const CHANNEL_ID = 'phase-cycle-updates';
 
 // expo-notifications itself prints this the moment it's required inside Expo Go
@@ -66,10 +71,14 @@ export async function requestNotificationPermissions(): Promise<boolean> {
   }
 }
 
-function atNotificationHour(date: Date): Date {
+function atHour(date: Date, hour: number): Date {
   const result = new Date(date);
-  result.setHours(NOTIFICATION_HOUR, 0, 0, 0);
+  result.setHours(hour, 0, 0, 0);
   return result;
+}
+
+function atNotificationHour(date: Date): Date {
+  return atHour(date, NOTIFICATION_HOUR);
 }
 
 /** Next occurrence (today or later) of an annual month/day, e.g. a birthday or anniversary. */
@@ -137,6 +146,13 @@ function buildPlannedNotifications(account: Account | null, profile: CycleProfil
         title: `TPM da ${name} chegando 🍫`,
         body: 'Hora de comprar absorvente e chocolate. Ela vai agradecer.',
       });
+    }
+
+    if (offset <= DAILY_TIP_HORIZON_DAYS) {
+      const dayContent = info.isPmsWindow && info.phase === 'safe' ? pmsHint() : phaseContent[info.phase];
+      const tipTitle = `${dayContent.emoji} ${dayContent.bannerTitle}`;
+      planned.push({ date: atHour(date, DAILY_TIP_HOUR_NOON), title: tipTitle, body: dayContent.tipDescription });
+      planned.push({ date: atHour(date, DAILY_TIP_HOUR_EVENING), title: tipTitle, body: dayContent.tipDescription });
     }
 
     previousPhase = info;
